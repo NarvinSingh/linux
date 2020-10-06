@@ -2,5 +2,6 @@
 
 sudo apt update
 sudo apt ugrade
-sudo apt install zsh git vim tmux openssh-server xinit openbox lxterminal
+sudo apt install zsh git vim tmux openssh-server man-db tree \
+  xinit openbox lxterminal
 
