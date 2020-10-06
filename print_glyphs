@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# Print the characters with Unicode values between $1 and $2, inclusive.
+
+# Convert $1 and $2 to decimal in case the were passed as hex or oct
+printf -v first '%d' $1
+printf -v last '%d' $2
+
+# Only print the character with code $1 if $2 was not passed or is less than$1
+if [ $last -lt $first ]; then last=$first; fi
+
+for ((i=$first; i<=$last; i++))
+do
+  # \U is expanded before $i is substituted for %x, so printf a literal
+  # escape code into a variable, then expand the variable
+  printf -v code "\\\U%08x " $i
+  printf "${code}"
+done
+
+printf '\n'
+
