@@ -1,4 +1,6 @@
 #!/bin/sh
+#
+# Install essential packages.
 
 sudo apt update
 sudo apt ugrade

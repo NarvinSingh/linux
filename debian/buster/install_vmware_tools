@@ -1,4 +1,6 @@
 #!/bin/sh
+#
+# Mount VMware Tools image and install it.
 
 echo 'Create /mnt/cdrom' && sudo mkdir /mnt/cdrom 2> /dev/null
 echo 'Unmout /mnt/cdrom' && sudo umount  /mnt/cdrom
