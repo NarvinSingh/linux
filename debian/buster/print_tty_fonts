@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# Print the visible Basic Latin, Latin-1 Supplement, and Latin Extended-A
+# characters for all the installed tty fonts. 
+
+print_glyphs() {
+  for ((i=$1; i<=$2; i++))
+  do
+    # \U is expanded before $i is substituted for %x, so printf a literal
+    # escape code into a variable, then expand the variable
+    printf -v code "\\\U%08x " $i
+    printf "${code}"
+  done
+}
+
+print_sample() {
+  printf "$1\n"
+  print_glyphs 33 126
+  print_glyphs 161 383
+  printf  "\nPress ENTER to continue.\n"
+  read
+}
+
+font_face=$(grep -i 'fontface' /etc/default/console-setup \
+  | cut -d '=' -f 2 | cut -d '"' -f 2)
+font_size=$(grep -i 'fontsize' /etc/default/console-setup \
+  | cut -d '=' -f 2 | cut -d '"' -f 2)
+clear
+print_sample "Current Font: ${font_face} ${font_size}"
+
+for i in /usr/share/consolefonts/Uni*
+do
+  clear
+  setfont "$i"
+  print_sample "$( echo $i | cut -d '/' -f 5 | cut -d '.' -f 1 )"
+done
+
