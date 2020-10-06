@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# Display the background color for each of the 256 tput color codes.
+
+readonly DEFAULT_BLOCK_WIDTH=4
+
+cols=$(tput cols)
+x=0
+
+########################################
+# Print a string n times.
+# Arguments:
+#   The number of times to repeat the string
+#   The string to repeat
+# Outputs:
+#   Writes the repeated string to stdout
+########################################
+printn() {
+  for ((__=0; __<$1; __++)); do
+    printf "$2"
+  done
+}
+
+if [[ $1 -ge 2 && $l -le cols ]]; then
+  block_width=$1
+else
+  block_width=DEFAULT_BLOCK_WIDTH
+fi
+
+padding_len=$(((block_width - 2) / 2))
+
+tput setaf 15
+
+for ((i_color=0; i_color<256; i_color++)); do
+  tput setab $i_color
+  printn $padding_len ' '
+  printf "%02X" $i_color
+  printn $padding_len ' '
+
+  ((x+=block_width))
+
+  if [[ $x -ge $cols ]]; then
+    printf '\n'
+    x=0
+  fi
+done
+
+printf '\n'
+tput sgr0
+
