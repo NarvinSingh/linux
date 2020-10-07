@@ -1,18 +1,30 @@
 #!/bin/bash
 #
 # Print the visible Basic Latin, Latin-1 Supplement, and Latin Extended-A
-# characters for all the installed tty fonts. 
+# characters for all the installed tty fonts.
 
+################################################################################
+# Print a range of Unicode characters.
+# Arguments:
+#   The code of the first character in the range
+#   The code of the last character in the range (optional)
+# Outputs:
+#   Writes the characters in the range, or just the first character if the last
+#   code is not passed, to stdout
+################################################################################
 print_glyphs() {
-  for ((i=$1; i<=$2; i++))
-  do
+  for ((i=$1; i<=$2; i++)); do
     # \U is expanded before $i is substituted for %x, so printf a literal
     # escape code into a variable, then expand the variable
+    local code
     printf -v code "\\\U%08x " $i
     printf "${code}"
   done
 }
 
+################################################################################
+# Print the sample characters and wait for the user to continue.
+################################################################################
 print_sample() {
   printf "$1\n"
   print_glyphs 33 126
@@ -28,10 +40,9 @@ font_size=$(grep -i 'fontsize' /etc/default/console-setup \
 clear
 print_sample "Current Font: ${font_face} ${font_size}"
 
-for i in /usr/share/consolefonts/Uni*
-do
+for i in /usr/share/consolefonts/Uni*; do
   clear
   setfont "$i"
-  print_sample "$( echo $i | cut -d '/' -f 5 | cut -d '.' -f 1 )"
+  print_sample "$( printf $i | cut -d '/' -f 5 | cut -d '.' -f 1 )"
 done
 
