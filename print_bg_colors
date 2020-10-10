@@ -7,14 +7,14 @@ readonly DEFAULT_BLOCK_WIDTH=4
 cols=$(tput cols)
 x=0
 
-########################################
+################################################################################
 # Print a string n times.
 # Arguments:
 #   The number of times to repeat the string
 #   The string to repeat
 # Outputs:
 #   Writes the repeated string to stdout
-########################################
+################################################################################
 printn() {
   for ((__=0; __<$1; __++)); do
     printf "$2"
