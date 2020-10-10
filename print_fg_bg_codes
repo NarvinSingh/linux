@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Print the tput codes to set the foreground and background colors for
+# 256 colors.
+
+readonly CODE_RESET=$(tput sgr0)
+
+for i in {0..255}; do
+  code_fg=$(tput setaf ${i})
+  code_bg=$(tput setab ${i})
+  printf "%3d%20q%20q    %b    %b\n" \
+    ${i} "${code_fg}" "${code_bg}" "${code_bg}" "${CODE_RESET}"
+done
+
