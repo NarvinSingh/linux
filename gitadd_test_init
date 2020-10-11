@@ -38,9 +38,10 @@ printf 'File was created by quoting name.\n'           >> 'test\u50_tws_tab.txt'
 printf 'This line has trailing spaces.   \n'           >> 'test\u50_tws_tab.txt'
 printf '\tThis line contains a tab.\n\n'               >> 'test\u50_tws_tab.txt'
 
-printf 'File name has leading whitespace.\n'           >  ' test_lws_tws.txt'
-printf 'File was created by quoting name.\n'           >> ' test_lws_tws.txt'
-printf 'This line has trailing spaces.   \n\n'         >> ' test_lws_tws.txt'
+printf 'File name has leading whitespace.\n'           >  ' test_lws_tws_mbl.txt'
+printf 'File was created by quoting name.\n'           >> ' test_lws_tws_mbl.txt'
+printf 'This line has trailing spaces.   \n\n'         >> ' test_lws_tws_mbl.txt'
+printf 'This has mutliple trailing blank lines.\n\n\n' >> ' test_lws_tws_mbl.txt'
 
 printf 'File name has special characters.\n'           >  'test!@#$^*()-_=+{}[]|;:"<>,.?\n .txt'
 printf 'File was created by quoting name.\n'           >> 'test!@#$^*()-_=+{}[]|;:"<>,.?\n .txt'
