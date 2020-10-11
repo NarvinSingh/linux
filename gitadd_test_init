@@ -5,45 +5,44 @@
 rm -rf ./gitadd_test
 mkdir ./gitadd_test
 cd ./gitadd_test
-git init 1>/dev/null
+git init 1> /dev/null
 
-printf '# Test Repo\n\n'                               >  README.md
+printf '# Gitadd Test Repo\n\n'                        >  README.md
 
-printf 'File name has no special characters.\n\n'      >  test.txt
-
-printf 'File name has no special characters.\n'        >  test_tws.txt
-printf 'This line has trailing spaces.   \n\n'          >> test_tws.txt
-
-printf 'File name has a space.\n'                      >  'test space.txt'
-printf 'File was created by quoting name.\n\n'         >> 'test space.txt'
+printf 'File name has no special characters.\n'        >  test.txt
+printf 'File contains no linting issues.\n\n'          >> test.txt
 
 printf 'File name has a space.\n'                      >  'test space_tws.txt'
-printf 'File was created by quoting name.\n'           >> 'test space_tws.txt'
+printf 'File created by quoting name.\n'               >> 'test space_tws.txt'
 printf 'This line has trailing spaces.   \n\n'         >> 'test space_tws.txt'
 
-printf 'File name has a space.\n'                      >  test\ space_2_nbl.txt
-printf 'File was created by escaping space in name.\n' >> test\ space_2_nbl.txt
-printf 'The last line of this file is not blank.\n'    >> test\ space_2_nbl.txt
+printf 'File name has a space.\n'                      >  test\ space_tab.txt
+printf 'File created by escaping space in name.\n'     >> test\ space_tab.txt
+printf '\tThis line contains a tab.\n\n'               >> test\ space_tab.txt
 
-printf 'File name has a space.\n'                      >  test\ space_2_tws_nbl.txt
-printf 'File was created by escaping space in name.\n' >> test\ space_2_tws_nbl.txt
-printf 'This line has trailing spaces.   \n'           >> test\ space_2_tws_nbl.txt
-printf 'The last line of this file is not blank.   \n' >> test\ space_2_tws_nbl.txt
+printf 'File name has surrounding whitespace.\n'       >  ' test_nbl.txt '
+printf 'File created by quoting name.\n'               >> ' test_nbl.txt '
+printf 'The last line of this file is not blank.\n'    >> ' test_nbl.txt '
 
-printf 'File name has a backslash.\n'                  >  'test\u50.txt'
-printf 'File was created by quoting name.\n\n'         >> 'test\u50.txt'
+printf 'File name has surrounding whitespace.\n'       >  ' test_mbl.txt '
+printf 'File created by escaping spaces in name.\n'    >> ' test_mbl.txt '
+printf 'File has multiple trailing blank lines\n\n\n'  >> ' test_mbl.txt '
 
-printf 'File name has a backslash.\n'                  >  'test\u50_tws_tab.txt'
-printf 'File was created by quoting name.\n'           >> 'test\u50_tws_tab.txt'
-printf 'This line has trailing spaces.   \n'           >> 'test\u50_tws_tab.txt'
-printf '\tThis line contains a tab.\n\n'               >> 'test\u50_tws_tab.txt'
+printf 'File name has a backslash.\n'                  >  'test\u50_tws.txt'
+printf 'File created by quoting name.\n'               >> 'test\u50_tws.txt'
+printf 'This line has trailing spaces.   \n\n'         >> 'test\u50_tws.txt'
 
-printf 'File name has leading whitespace.\n'           >  ' test_lws_tws_mbl.txt'
-printf 'File was created by quoting name.\n'           >> ' test_lws_tws_mbl.txt'
-printf 'This line has trailing spaces.   \n\n'         >> ' test_lws_tws_mbl.txt'
-printf 'This has mutliple trailing blank lines.\n\n\n' >> ' test_lws_tws_mbl.txt'
+printf 'File name has special characters.\n'           >  'test!@#$^*()-=+{}[]|;:"<>,.?\n _tab.txt'
+printf 'File created by quoting name.\n'               >> 'test!@#$^*()-=+{}[]|;:"<>,.?\n _tab.txt'
+printf '\tThis line contains a tab.\n\n'               >> 'test!@#$^*()-=+{}[]|;:"<>,.?\n _tab.txt'
 
-printf 'File name has special characters.\n'           >  'test!@#$^*()-_=+{}[]|;:"<>,.?\n .txt'
-printf 'File was created by quoting name.\n'           >> 'test!@#$^*()-_=+{}[]|;:"<>,.?\n .txt'
-printf 'This line has trailing spaces.   \n\n'         >> 'test!@#$^*()-_=+{}[]|;:"<>,.?\n .txt'
+printf 'File name has no special characters.\n'        >  test_tws_tab_nbl.txt
+printf 'This line has trailing spaces.   \n'           >> test_tws_tab_nbl.txt
+printf '\tThis line contains a tab.\n'                 >> test_tws_tab_nbl.txt
+printf 'The last line of this file is not blank.'      >> test_tws_tab_nbl.txt
+
+printf 'File name has no special characters.\n'        >  test_tws_tab_mbl.txt
+printf 'This line has trailing spaces.   \n'           >> test_tws_tab_mbl.txt
+printf '\tThis line contains a tab.\n'                 >> test_tws_tab_mbl.txt
+printf 'File has multiple trailing blank lines\n\n\n'  >> test_tws_tab_mbl.txt
 
