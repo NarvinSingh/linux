@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Enhanced git add that reports linting errors for added files.
+
+readonly RED_FG=$(tput setaf 1)
+readonly RESET_COLOR=$(tput sgr0)
+
+clean_file_name() {
+  # Strip surrounding quotes if they are present
+  cleaned_file_name="${1#\"}"
+  cleaned_file_name="${cleaned_file_name%\"}"
+
+  # Interpret any backslash sequences
+  printf -v cleaned_file_name "${cleaned_file_name}"
+}
+
+git add "$@"
+
+exit_code=$?
+added_files=$(git status -s | grep '^A' | cut -b 4-)
+IFS=$'\n'
+
+for added_file in ${added_files}; do
+  clean_file_name "${added_file}"
+
+  # Trailing whitespace
+  grep -m 1 '\s\+$' "${cleaned_file_name}" 1> /dev/null \
+    && printf "${RED_FG}tws${RESET_COLOR} ${added_file}\n"
+
+  # Tabs
+  grep -m 1 $'\t' "${cleaned_file_name}" 1> /dev/null \
+    && printf "${RED_FG}tab${RESET_COLOR} ${added_file}\n"
+done
+
+exit $exit_code
+

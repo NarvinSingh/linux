@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+# Initializes the gitadd_test directory with test cases for gitadd
+
+rm -rf ./gitadd_test
+mkdir ./gitadd_test
+cd ./gitadd_test
+git init 1>/dev/null
+
+printf '# Test Repo\n'                                 >  README.md
+
+printf 'File name has no special characters.\n'        >  test.txt
+
+printf 'File name has no special characters.\n'        >  test_tws.txt
+printf 'This line has trailing spaces.   \n'           >> test_tws.txt
+
+printf 'File name has a space.\n'                      >  'test space.txt'
+printf 'File was created by quoting name.\n'           >> 'test space.txt'
+
+printf 'File name has a space.\n'                      >  'test space_tws.txt'
+printf 'File was created by quoting name.\n'           >> 'test space_tws.txt'
+printf 'This line has trailing spaces.   \n'           >> 'test space_tws.txt'
+
+printf 'File name has a space.\n'                      >  test\ space_2.txt
+printf 'File was created by escaping space in name.'   >> test\ space_2.txt
+
+printf 'File name has a space.\n'                      >  test\ space_2_tws.txt
+printf 'File was created by escaping space in name.\n' >> test\ space_2_tws.txt
+printf 'This line has trailing spaces.   '             >> test\ space_2_tws.txt
+
+printf 'File name has a backslash.\n'                  >  'test\u50.txt'
+printf 'File was created by quoting name.\n'           >> 'test\u50.txt'
+
+printf 'File name has a backslash.\n'                  >  'test\u50_tws_tab.txt'
+printf 'File was created by quoting name.\n'           >> 'test\u50_tws_tab.txt'
+printf 'This line has trailing spaces.   \n'           >> 'test\u50_tws_tab.txt'
+printf '\tThis line contains a tab.'                   >> 'test\u50_tws_tab.txt'
+
+printf 'File name has leading whitespace.\n'           >  ' test_lws_tws.txt'
+printf 'File was created by quoting name.\n'           >> ' test_lws_tws.txt'
+printf 'This line has trailing spaces.   \n'           >> ' test_lws_tws.txt'
+
+printf 'File name has special characters.\n'           >  'test!@#$^*()-_=+{}[]|;:"<>,.?\n .txt'
+printf 'File was created by quoting name.\n'           >> 'test!@#$^*()-_=+{}[]|;:"<>,.?\n .txt'
+printf 'This line has trailing spaces.   \n'           >> 'test!@#$^*()-_=+{}[]|;:"<>,.?\n .txt'
+
