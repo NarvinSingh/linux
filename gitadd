@@ -5,6 +5,7 @@
 readonly RED_FG=$(tput setaf 1)
 readonly RESET_COLOR=$(tput sgr0)
 
+# TODO: Does not handle % character
 clean_file_name() {
   # Strip surrounding quotes if they are present
   cleaned_file_name="${1#\"}"
@@ -30,6 +31,10 @@ for added_file in ${added_files}; do
   # Tabs
   grep -m 1 $'\t' "${cleaned_file_name}" 1> /dev/null \
     && printf "${RED_FG}tab${RESET_COLOR} ${added_file}\n"
+
+  # No trailing blank line
+  tail -n 1 "${cleaned_file_name}" | grep -v -m 1 '^$' 1> /dev/null \
+    && printf "${RED_FG}nbl${RESET_COLOR} ${added_file}\n"
 done
 
 exit $exit_code
