@@ -5,7 +5,16 @@
 readonly RED_FG=$(tput setaf 1)
 readonly RESET_COLOR=$(tput sgr0)
 
-# TODO: Does not handle % character
+################################################################################
+# Cleans a file name output by git status.
+# Arguments
+#   The file name as output by git status
+# Outputs
+#   Sets the global $cleaned_file_name to a file name that can be used as
+#   input to another command
+# TODO
+#   Does not handle % character
+################################################################################
 clean_file_name() {
   # Strip surrounding quotes if they are present
   cleaned_file_name="${1#\"}"
@@ -15,6 +24,15 @@ clean_file_name() {
   printf -v cleaned_file_name "${cleaned_file_name}"
 }
 
+################################################################################
+# Prints a linting error if the file is missing a trailing blank line,
+# or has more than one trailing blank line.
+# Arguments
+#   The number of trailing blank lines on stdin
+# Outputs
+#   Writes a linting error to stdout if the number of trailing blank lines
+#   is not 1
+################################################################################
 check_trailing_blank_lines() {
   mapfile -t stdin_args
   n="${stdin_args[0]}"
