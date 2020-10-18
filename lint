@@ -2,6 +2,9 @@
 #
 # Lints a list of file
 
+readonly RED_FG=$(tput setaf 1)
+readonly RESET_COLOR=$(tput sgr0)
+
 ################################################################################
 # Prints the usage info for this script.
 # Outputs
