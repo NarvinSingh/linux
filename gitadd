@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Enhanced git add that reports linting errors for added files.
+# Enhanced git add that reports linting errors for added or modified files.
 
 readonly RED_FG=$(tput setaf 1)
 readonly RESET_COLOR=$(tput sgr0)
@@ -38,28 +38,28 @@ check_trailing_blank_lines() {
   n="${stdin_args[0]}"
 
   if [[ "$n" -eq 0 ]]; then
-    printf "${RED_FG}nbl${RESET_COLOR} ${added_file}\n"
+    printf "${RED_FG}nbl${RESET_COLOR} ${file}\n"
   elif [[ "$n" -gt 1 ]]; then
-    printf "${RED_FG}mbl${RESET_COLOR} ${added_file}\n"
+    printf "${RED_FG}mbl${RESET_COLOR} ${file}\n"
   fi
 }
 
 git add "$@"
 
 exit_code=$?
-added_files=$(git status -s | grep '^A' | cut -b 4-)
+files=$(git status -s | grep '^[AM]' | cut -b 4-)
 IFS=$'\n'
 
-for added_file in ${added_files}; do
-  clean_file_name "${added_file}"
+for file in ${files}; do
+  clean_file_name "${file}"
 
   # Trailing whitespace
   grep -m 1 '\s\+$' "${cleaned_file_name}" 1> /dev/null \
-    && printf "${RED_FG}tws${RESET_COLOR} ${added_file}\n"
+    && printf "${RED_FG}tws${RESET_COLOR} ${file}\n"
 
   # Tabs
   grep -m 1 $'\t' "${cleaned_file_name}" 1> /dev/null \
-    && printf "${RED_FG}tab${RESET_COLOR} ${added_file}\n"
+    && printf "${RED_FG}tab${RESET_COLOR} ${file}\n"
 
   # No trailing blank line
   tail -n 2 "${cleaned_file_name}" | grep -c -m 2 '^$' \
