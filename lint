@@ -69,7 +69,9 @@ check_trailing_blank_lines() {
 
 for item in "$@"; do
   # Process a file
-  if [[ -f "${item}" ]]; then
+  if [[ ! -e "${item}" ]]; then
+    printf "${RED_FG}ne ${RESET_COLOR} %s\n" "${item}"
+  elif [[ -f "${item}" ]]; then
     # Trailing whitespace
     grep -m 1 '\s\+$' "${item}" 1> /dev/null \
       && printf "${RED_FG}tws${RESET_COLOR} %s\n" "${item}"
