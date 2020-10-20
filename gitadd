@@ -6,6 +6,16 @@ readonly RED_FG=$(tput setaf 1)
 readonly RESET_COLOR=$(tput sgr0)
 
 ################################################################################
+# Prints the usage info for this script.
+# Outputs
+#   Writes the usage info to stdout
+################################################################################
+usage() {
+  printf 'usage: gitadd [--help | -h] [--git-dir=<path>] [work-tree=<path>]\n'
+  printf '              [<files>]\n'
+}
+
+################################################################################
 # Cleans a file name output by git status.
 # Arguments
 #   The file name as output by git status
@@ -44,12 +54,55 @@ check_trailing_blank_lines() {
   fi
 }
 
-git add "$@"
+# Options that this script handles will be passed to git before the add
+# command and the parameters, which constitute the path spec, will be passed
+# after the command, so parse out the options and parameters using getopt
+parsed_args="$(getopt -n gitadd -o h -l help,git-dir:,work-tree: -- "$@")"
+getopt_result="$?"
 
+# Show usage if getopt failed to parse the arguments
+if [[ ${getopt_result} -ne 0 ]]; then
+  usage
+  exit "${getopt_result}"
+fi
+
+# Set $1...$n
+eval set -- "${parsed_args}"
+
+# Process the options
+opts=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    --git-dir | --work-tree)
+      opts+=("$1" "$2")
+      shift 2
+      ;;
+    # This is the last option, the rest of $parsed_args is parameters
+    --)
+      shift
+      break
+      ;;
+  esac
+done
+
+# Call git with the options, the add command, and the path spec
+git "${opts[@]}" add "$@"
+
+# Save the exit code from git to return from this script
 exit_code=$?
+
+# Get the added and modified files from the git status
 files=$(git status -s | grep '^[AM]' | cut -b 4-)
+
+# Each file will be on its own line, so update the separator
 IFS=$'\n'
 
+# Process each file
 for file in ${files}; do
   clean_file_name "${file}"
 
