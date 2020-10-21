@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Enhanced git add that reports linting errors for added or modified files.
+# Enhanced git add that reports linting errors for added, modified or
+# renamed files.
 
 readonly RED_FG=$(tput setaf 1)
 readonly RESET_COLOR=$(tput sgr0)
@@ -96,8 +97,15 @@ done
 # Save the exit code from git to return from this script
 exit_code=$?
 
-# Get the added and modified files from the git status
-files=$(/usr/bin/git "${opts[@]}" status -s | grep '^[AM]' | cut -b 4-)
+# Get the added, modified, or renamed files from the git status
+files=$(/usr/bin/git "${opts[@]}" status -s | grep '^[AM] ' | cut -b 4-)
+files2="$(/usr/bin/git "${opts[@]}" status -s | grep '^R ' | awk -F ' -> ' '{print $2}')"
+
+if [[ -z "$files" ]]; then
+  files=$files2
+else
+  files+=$files2
+fi
 
 # Each file will be on its own line, so update the separator
 IFS=$'\n'
