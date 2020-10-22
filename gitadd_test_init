@@ -32,9 +32,9 @@ printf 'File name has a backslash.\n'                  >  'test\u50_tws.txt'
 printf 'File created by quoting name.\n'               >> 'test\u50_tws.txt'
 printf 'This line has trailing spaces.   \n\n'         >> 'test\u50_tws.txt'
 
-printf 'File name has special characters.\n'           >  'test!@#$^*()-=+{}[]|;:"<>,.?\n _tab.txt'
-printf 'File created by quoting name.\n'               >> 'test!@#$^*()-=+{}[]|;:"<>,.?\n _tab.txt'
-printf '\tThis line contains a tab.\n\n'               >> 'test!@#$^*()-=+{}[]|;:"<>,.?\n _tab.txt'
+printf 'File name has special characters.\n'           >  'test!@#$%^*()-=+{}[]|;:"<>,.?\n _tab.txt'
+printf 'File created by quoting name.\n'               >> 'test!@#$%^*()-=+{}[]|;:"<>,.?\n _tab.txt'
+printf '\tThis line contains a tab.\n\n'               >> 'test!@#$%^*()-=+{}[]|;:"<>,.?\n _tab.txt'
 
 printf 'File name has no special characters.\n'        >  test_tws_tab_nbl.txt
 printf 'This line has trailing spaces.   \n'           >> test_tws_tab_nbl.txt

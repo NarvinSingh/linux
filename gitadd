@@ -16,45 +16,6 @@ usage() {
   printf '              [<files>]\n'
 }
 
-################################################################################
-# Cleans a file name output by git status.
-# Arguments
-#   The file name as output by git status
-# Outputs
-#   Sets the global $cleaned_file_name to a file name that can be used as
-#   input to another command
-# TODO
-#   Does not handle % character
-################################################################################
-clean_file_name() {
-  # Strip surrounding quotes if they are present
-  cleaned_file_name="${1#\"}"
-  cleaned_file_name="${cleaned_file_name%\"}"
-
-  # Interpret any backslash sequences
-  printf -v cleaned_file_name "${cleaned_file_name}"
-}
-
-################################################################################
-# Prints a linting error if the file is missing a trailing blank line,
-# or has more than one trailing blank line.
-# Arguments
-#   The number of trailing blank lines on stdin
-# Outputs
-#   Writes a linting error to stdout if the number of trailing blank lines
-#   is not 1
-################################################################################
-check_trailing_blank_lines() {
-  mapfile -t stdin_args
-  n="${stdin_args[0]}"
-
-  if [[ "$n" -eq 0 ]]; then
-    printf "${RED_FG}nbl${RESET_COLOR} ${file}\n"
-  elif [[ "$n" -gt 1 ]]; then
-    printf "${RED_FG}mbl${RESET_COLOR} ${file}\n"
-  fi
-}
-
 # Options that this script handles will be passed to git before the add
 # command and the parameters, which constitute the path spec, will be passed
 # after the command, so parse out the options and parameters using getopt
@@ -98,33 +59,33 @@ done
 exit_code=$?
 
 # Get the added, modified, or renamed files from the git status
-files=$(/usr/bin/git "${opts[@]}" status -s | grep '^[AM] ' | cut -b 4-)
-files2="$(/usr/bin/git "${opts[@]}" status -s | grep '^R ' | awk -F ' -> ' '{print $2}')"
+mapfile -d '' status_lines < <(/usr/bin/git "${opts[@]}" status -z --porcelain)
+mapfile -d '' am_files < <(printf -- "%s\0" "${status_lines[@]}" \
+  | grep -z '^[AM] ' \
+  | cut -z -b 4-)
+mapfile -d '' r_files < <(printf -- "%s\0" "${status_lines[@]}" \
+  | grep -z '^R ' \
+  | awk -v RS='\0' -F ' -> ' '{print $2}')
+files=( "${am_files[@]}" "${r_files[@]}" )
 
-if [[ -z "$files" ]]; then
-  files=$files2
-else
-  files+=$files2
-fi
-
-# Each file will be on its own line, so update the separator
-IFS=$'\n'
-
-# Process each file
-for file in ${files}; do
-  clean_file_name "${file}"
-
+# Print lint issues for each file
+for file in "${files[@]}"; do
   # Trailing whitespace
-  grep -m 1 '\s\+$' "${cleaned_file_name}" 1> /dev/null \
-    && printf "${RED_FG}tws${RESET_COLOR} ${file}\n"
+  grep -m 1 '\s$' "${file}" 1> /dev/null \
+    && printf "${RED_FG}tws${RESET_COLOR} %s\n" "${file}"
 
   # Tabs
-  grep -m 1 $'\t' "${cleaned_file_name}" 1> /dev/null \
-    && printf "${RED_FG}tab${RESET_COLOR} ${file}\n"
+  grep -m 1 $'\t' "${file}" 1> /dev/null \
+    && printf "${RED_FG}tab${RESET_COLOR} %s\n" "${file}"
 
   # No trailing blank line
-  tail -n 2 "${cleaned_file_name}" | grep -c -m 2 '^$' \
-    | check_trailing_blank_lines
+  read num_tbl < <(tail -n 2 "${file}" | grep -c -m 2 '^$')
+
+  if [[ "${num_tbl}" -eq 0 ]]; then
+    printf "${RED_FG}nbl${RESET_COLOR} %s\n" "${file}"
+  elif [[ "${num_tbl}" -gt 1 ]]; then
+    printf "${RED_FG}mbl${RESET_COLOR} %s\n" "${file}"
+  fi
 done
 
 exit $exit_code
