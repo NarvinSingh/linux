@@ -58,15 +58,15 @@ done
 # Save the exit code from git to return from this script
 exit_code=$?
 
-# Get the added, modified, or renamed files from the git status
-mapfile -d '' status_lines < <(/usr/bin/git "${opts[@]}" status -z --porcelain)
-mapfile -d '' am_files < <(printf -- "%s\0" "${status_lines[@]}" \
-  | grep -z '^[AM] ' \
+# Get the added, modified, or renamed files from the git status. Renamed
+# status entries will have a null character between the file names, in
+# addition to the null character at the end of the entry. This will cause
+# grep to treat the entry as two lines, breaking the entry after the first
+# file name. But this is fine because the line with the first file will match,
+# and the first file name is the new name when -z is used.
+mapfile -d '' files < <(/usr/bin/git "${opts[@]}" status -z --porcelain \
+  | grep -z '^[AMR] ' \
   | cut -z -b 4-)
-mapfile -d '' r_files < <(printf -- "%s\0" "${status_lines[@]}" \
-  | grep -z '^R ' \
-  | awk -v RS='\0' -F ' -> ' '{print $2}')
-files=( "${am_files[@]}" "${r_files[@]}" )
 
 # Print lint issues for each file
 for file in "${files[@]}"; do
