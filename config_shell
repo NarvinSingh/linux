@@ -11,22 +11,20 @@ fi
 if ! grep -q "^${zsh_path}$" /etc/shells; then
   printf "${zsh_path}\n" >> /etc/shells
 
-  # Exit if we can't
+  # Exit if we can't create the directory
   if [[ $? -ne 0 ]]; then
-    printf 'could not add zsh to /etc/shell' >&2
+    printf 'entry for zsh not added to /etc/shell' >&2
     exit 128
   fi
 fi
 
 # Create $HOME/.config/zsh if necessary
-if [[ ! -d "$HOME/.config/zsh" ]]; then
-  mkdir -p "$HOME/.config/zsh"
+mkdir -p "$HOME/.config/zsh"
 
-  # Exit if we can't
-  if [[ $? -ne 0 ]]; then
-    printf "could not create $HOME/.config/zsh" >&2
-    exit 129
-  fi
+# Exit if we can't create the directory
+if [[ $? -ne 0 ]]; then
+  printf "$HOME/.config/zsh not created" >&2
+  exit 129
 fi
 
 # Set ZDOTDIR
@@ -34,13 +32,13 @@ if [[ -d "$HOME/.config/zsh" ]] \
   && ! grep -q '^export ZDOTDIR=' /etc/zsh/zshenv; then
   printf '\nexport ZDOTDIR=$HOME/.config/zsh' >> /etc/zsh/zshenv
 
-  # Exit if we can't
+  # Exit if we can't set ZDOTDIR
   if [[ $? -ne 0 ]]; then
-    printf 'could not write ZDOTDIR to /etc/zsh/zshenv' >&2
+    printf 'ZDOTDIR not exported from /etc/zsh/zshenv' >&2
     exit 130
   fi
 fi
 
-printf "Changing shell to ${zsh_path}\n"
+printf "Changing the shell to ${zsh_path}\n"
 chsh -s "${zsh_path}"
 
