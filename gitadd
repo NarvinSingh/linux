@@ -13,7 +13,7 @@ readonly RESET_COLOR=$(tput sgr0)
 ################################################################################
 usage() {
   printf 'usage: gitadd [--help | -h] [--git-dir=<path>] [work-tree=<path>]\n'
-  printf '              [<files>]\n'
+  printf '              [-- <add options>...] [<files>]\n'
 }
 
 # Options that this script handles will be passed to git before the add
