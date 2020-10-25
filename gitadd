@@ -13,7 +13,7 @@ readonly RESET_COLOR=$(tput sgr0)
 ################################################################################
 usage() {
   printf 'usage: gitadd [--help | -h] [--git-dir=<path>] [work-tree=<path>]\n'
-  printf '              [-- <add options>...] [<files>]\n'
+  printf '              [-- <add options>...] [<pathspec>...]\n'
 }
 
 git_path=$(which git)
