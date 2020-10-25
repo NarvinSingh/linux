@@ -1,26 +1,39 @@
 #!/bin/bash
-#
+
+# gitadd
+# ======
+
 # Enhanced git add that reports linting errors for added, modified or
 # renamed files.
 
+# Constants
+# ---------
 readonly RED_FG=$(tput setaf 1)
 readonly RESET_COLOR=$(tput sgr0)
 
-################################################################################
+# Functions
+# ---------
+
+# ### Usage
+
 # Prints the usage info for this script.
 # Outputs
 #   Writes the usage info to stdout
-################################################################################
 usage() {
   printf 'usage: gitadd [--help | -h] [--git-dir=<path>] [work-tree=<path>]\n'
   printf '              [-- <add options>...] [<files>]\n'
 }
 
+# Init
+# ----
 git_path=$(which git)
 
 if [[ "$?" -ne 0 ]]; then
   exit 127
 fi
+
+# Parse args
+# ----------
 
 # Options that this script handles will be passed to git before the add
 # command and the parameters, which constitute the path spec, will be passed
@@ -58,11 +71,17 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Git add files
+# -------------
+
 # Call git with the options, the add command, and the path spec
 ${git_path} "${opts[@]}" add "$@"
 
 # Save the exit code from git to return from this script
 exit_code=$?
+
+# Lint files
+# ----------
 
 # Get the repo root so we can construct absolute paths since the paths from
 # the porcelain status are alway relative to the repository root, which may
