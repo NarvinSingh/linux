@@ -16,6 +16,12 @@ usage() {
   printf '              [-- <add options>...] [<files>]\n'
 }
 
+git_path=$(which git)
+
+if [[ "$?" -ne 0 ]]; then
+  exit 127
+fi
+
 # Options that this script handles will be passed to git before the add
 # command and the parameters, which constitute the path spec, will be passed
 # after the command, so parse out the options and parameters using getopt
@@ -53,7 +59,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Call git with the options, the add command, and the path spec
-/usr/bin/git "${opts[@]}" add "$@"
+${git_path} "${opts[@]}" add "$@"
 
 # Save the exit code from git to return from this script
 exit_code=$?
@@ -61,7 +67,7 @@ exit_code=$?
 # Get the repo root so we can construct absolute paths since the paths from
 # the porcelain status are alway relative to the repository root, which may
 # be different from the working directory
-git_root=$(/usr/bin/git "${opts[@]}" rev-parse --show-toplevel)
+git_root=$(${git_path} "${opts[@]}" rev-parse --show-toplevel)
 
 # Get the added, modified, or renamed files from the git status.
 # Renamed status entries will have a null character between the file names,
@@ -69,7 +75,7 @@ git_root=$(/usr/bin/git "${opts[@]}" rev-parse --show-toplevel)
 # grep to treat the entry as two lines, breaking the entry after the first
 # file name. But this is fine because the line with the first file will match,
 # and the first file name is the new name when -z is used.
-mapfile -d '' files < <(/usr/bin/git "${opts[@]}" status -z --porcelain \
+mapfile -d '' files < <(${git_path} "${opts[@]}" status -z --porcelain \
   | grep -z '^[AMR] ' \
   | cut -z -b 4- \
   | xargs -0 -n 1 printf "${git_root}/%s\0")
