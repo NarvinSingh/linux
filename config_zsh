@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Configure Zsh as the login shell
+# ================================
+
+# Get dependencies
+# ----------------
+zsh_path=$(which zsh)
+
+if [[ $? -ne 0 ]]; then
+  printf 'zsh not found\n' >&2
+  exit 127
+fi
+
+if [[ ! $(which sudo) ]]; then
+  printf 'sudo not found\n' >&2
+  exit 127
+fi
+
+# Add zsh to /etc/shells
+# ----------------------
+if ! grep -q -m 1 "^${zsh_path}$" /etc/shells; then
+  sudo bash -c "printf \"${zsh_path}\n\" >> /etc/shells"
+
+  # Exit if we can't add the shell path
+  if [[ $? -ne 0 ]]; then
+    printf 'entry for zsh not added to /etc/shell\n' >&2
+    exit 128
+  fi
+fi
+
+# Verify the config directory exists
+# ----------------------------------
+mkdir -p "$HOME/.config/zsh"
+
+# Exit if the zsh config directory does not exist
+if [[ ! -d "${HOME}"/.config/zsh ]]; then
+  printf "${HOME}/.config/zsh not found\n" >&2
+  exit 129
+fi
+
+# Set ZDOTDIR
+# -----------
+
+# We know that the zsh config directory exists at this point
+if ! grep -q -m 1 '^export ZDOTDIR=' /etc/zsh/zshenv; then
+  sudo \
+    bash -c "printf \"\nexport ZDOTDIR=$HOME/.config/zsh\n\" >> /etc/zsh/zshenv"
+
+  # Exit if we can't set ZDOTDIR
+  if [[ $? -ne 0 ]]; then
+    printf 'ZDOTDIR not exported from /etc/zsh/zshenv\n' >&2
+    exit 130
+  fi
+fi
+
+# Set Zsh as the login shell
+# --------------------------
+
+# $$HELL can give a symlinked location that doesn't match zsh_path, so grep
+# /etc/passwd for the user's shell instead
+if [[ $(grep -m 1 "${USER}" /etc/passwd | cut -d ':' -f 7) != \
+  "${zsh_path}" ]]; then
+  printf "Changing the login shell to ${zsh_path}\n"
+  chsh -s "${zsh_path}"
+fi
+
