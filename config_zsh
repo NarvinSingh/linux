@@ -62,6 +62,13 @@ fi
 
 # Set Zsh as the login shell
 # --------------------------
-printf "Changing the login shell to ${zsh_path}\n"
-chsh -s "${zsh_path}"
+
+# $$HELL can give a symlinked location that doesn't match zsh_path, so grep
+# /etc/passwd for the user's shell instead
+if [[ $(grep -m 1 "${USER}" /etc/passwd | cut -d ':' -f 7) != \
+  "${zsh_path}" ]]; then
+  printf "Changing the login shell to ${zsh_path}\n"
+  chsh -s "${zsh_path}"
+else echo 'shell already set to zsh'
+fi
 
