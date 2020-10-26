@@ -3,8 +3,8 @@
 # Configure Zsh as the login shell
 # ================================
 
-# Get Zsh path
-# ------------
+# Get dependencies
+# ----------------
 zsh_path=$(which zsh)
 
 if [[ $? -ne 0 ]]; then
@@ -12,10 +12,15 @@ if [[ $? -ne 0 ]]; then
   exit 127
 fi
 
+if [[ ! $(which sudo) ]]; then
+  printf 'sudo not found' >&2
+  exit 127
+fi
+
 # Add zsh to /etc/shells
 # ----------------------
 if ! grep -q -m 1 "^${zsh_path}$" /etc/shells; then
-  printf "${zsh_path}\n" >> /etc/shells
+  sudo printf "${zsh_path}\n" >> /etc/shells
 
   # Exit if we can't add the shell path
   if [[ $? -ne 0 ]]; then
@@ -43,7 +48,7 @@ fi
 
 # We know that the zsh config directory exists at this point
 if ! grep -q -m 1 '^export ZDOTDIR=' /etc/zsh/zshenv; then
-  printf '\nexport ZDOTDIR=$HOME/.config/zsh' >> /etc/zsh/zshenv
+  sudo printf '\nexport ZDOTDIR=$HOME/.config/zsh' >> /etc/zsh/zshenv
 
   # Exit if we can't set ZDOTDIR
   if [[ $? -ne 0 ]]; then
