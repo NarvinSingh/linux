@@ -37,7 +37,7 @@ fi
 mkdir -p "$HOME/.config/zsh"
 
 # Exit if the zsh config directory does not exist
-if [[ -d "${HOME}"/.config/zsh ]]; then
+if [[ ! -d "${HOME}"/.config/zsh ]]; then
   printf "${HOME}/.config/zsh not found" >&2
   exit 129
 else echo 'Config directory found'
