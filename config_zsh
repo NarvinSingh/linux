@@ -22,6 +22,9 @@ if ! grep -q "^${zsh_path}$" /etc/shells; then
     printf 'entry for zsh not added to /etc/shell' >&2
     exit 128
   fi
+
+  echo 'Added zsh to /etc/shells'
+else echo 'Zsh already in /etc/shells'
 fi
 
 # Verify the config directory exists
@@ -32,6 +35,7 @@ mkdir -p "$HOME/.config/zsh"
 if [[ -d "${HOME}"/.config/zsh ]]; then
   printf "${HOME}/.config/zsh not found" >&2
   exit 129
+else echo 'Config directory found'
 fi
 
 # Set ZDOTDIR
@@ -46,6 +50,9 @@ if ! grep -q '^export ZDOTDIR=' /etc/zsh/zshenv; then
     printf 'ZDOTDIR not exported from /etc/zsh/zshenv' >&2
     exit 130
   fi
+
+  echo 'Set ZDOTDIR'
+else echo 'ZDOTDIR already set'
 fi
 
 # Set Zsh as the login shell
