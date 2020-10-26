@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Configure Bash
+# ==============
+
+# Get dependencies
+# ----------------
+if [[ ! $(which sudo) ]]; then
+  printf 'sudo not found\n' >&2
+  exit 127
+fi
+
+# Verify the config directory
+# ---------------------------
+mkdir -p "$HOME/.config/bash"
+
+# Exit if the bash config directory does not exist
+if [[ ! -d "${HOME}"/.config/bash ]]; then
+  printf "${HOME}/.config/bash not found\n" >&2
+  exit 128
+fi
+
+# Update /etc/bash.bashrc
+# -----------------------
+
+heading='# Source bash config from the XDG base directory'
+
+if ! grep -q -m 1 "${heading}" /etc/bash.bashrc; then
+  sudo bash -c "printf '\n%s\n' '${heading}' >> /etc/bash.bashrc"
+  sudo bash -c 'cat >> /etc/bash.bashrc << SOURCE
+if [[ -r "\${HOME}"/.config/bash/bashrc ]]; then
+  source "\${HOME}"/.config/bash/bashrc
+fi
+
+SOURCE
+  '
+
+  # Exit if we can't update /etc/bash.bashrc
+  if [[ $? -ne 0 ]]; then
+    printf '/etc/bash.bashrc not updated to source bashrc\n' >&2
+    exit 129
+  fi
+fi
+
