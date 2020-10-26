@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Configure Zsh as the login shell
+# ================================
+
+# Get Zsh path
+# ------------
 zsh_path=$(which zsh)
 
 if [[ $? -ne 0 ]]; then
@@ -7,7 +12,8 @@ if [[ $? -ne 0 ]]; then
   exit 127
 fi
 
-# Add the shell path to /etc/shell
+# Add zsh to /etc/shells
+# ----------------------
 if ! grep -q "^${zsh_path}$" /etc/shells; then
   printf "${zsh_path}\n" >> /etc/shells
 
@@ -18,7 +24,8 @@ if ! grep -q "^${zsh_path}$" /etc/shells; then
   fi
 fi
 
-# Make sure the zsh config directory exists
+# Verify the config directory exists
+# ----------------------------------
 mkdir -p "$HOME/.config/zsh"
 
 # Exit if the zsh config directory does not exist
@@ -27,7 +34,10 @@ if [[ -d "${HOME}"/.config/zsh ]]; then
   exit 129
 fi
 
-# Set ZDOTDIR (we know that the zsh config directory exists at this point)
+# Set ZDOTDIR
+# -----------
+
+# We know that the zsh config directory exists at this point
 if ! grep -q '^export ZDOTDIR=' /etc/zsh/zshenv; then
   printf '\nexport ZDOTDIR=$HOME/.config/zsh' >> /etc/zsh/zshenv
 
@@ -38,6 +48,8 @@ if ! grep -q '^export ZDOTDIR=' /etc/zsh/zshenv; then
   fi
 fi
 
-printf "Changing the shell to ${zsh_path}\n"
+# Set Zsh as the login shell
+# --------------------------
+printf "Changing the login shell to ${zsh_path}\n"
 chsh -s "${zsh_path}"
 
