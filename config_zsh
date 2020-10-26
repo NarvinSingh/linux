@@ -8,23 +8,23 @@
 zsh_path=$(which zsh)
 
 if [[ $? -ne 0 ]]; then
-  printf 'zsh not found' >&2
+  printf 'zsh not found\n' >&2
   exit 127
 fi
 
 if [[ ! $(which sudo) ]]; then
-  printf 'sudo not found' >&2
+  printf 'sudo not found\n' >&2
   exit 127
 fi
 
 # Add zsh to /etc/shells
 # ----------------------
 if ! grep -q -m 1 "^${zsh_path}$" /etc/shells; then
-  sudo printf "${zsh_path}\n" >> /etc/shells
+  sudo printf "\n${zsh_path}" >> /etc/shells
 
   # Exit if we can't add the shell path
   if [[ $? -ne 0 ]]; then
-    printf 'entry for zsh not added to /etc/shell' >&2
+    printf 'entry for zsh not added to /etc/shell\n' >&2
     exit 128
   fi
 
@@ -38,7 +38,7 @@ mkdir -p "$HOME/.config/zsh"
 
 # Exit if the zsh config directory does not exist
 if [[ ! -d "${HOME}"/.config/zsh ]]; then
-  printf "${HOME}/.config/zsh not found" >&2
+  printf "${HOME}/.config/zsh not found\n" >&2
   exit 129
 else echo 'Config directory found'
 fi
@@ -48,11 +48,11 @@ fi
 
 # We know that the zsh config directory exists at this point
 if ! grep -q -m 1 '^export ZDOTDIR=' /etc/zsh/zshenv; then
-  sudo printf '\nexport ZDOTDIR=$HOME/.config/zsh' >> /etc/zsh/zshenv
+  sudo printf '\nexport ZDOTDIR=$HOME/.config/zsh\n' >> /etc/zsh/zshenv
 
   # Exit if we can't set ZDOTDIR
   if [[ $? -ne 0 ]]; then
-    printf 'ZDOTDIR not exported from /etc/zsh/zshenv' >&2
+    printf 'ZDOTDIR not exported from /etc/zsh/zshenv\n' >&2
     exit 130
   fi
 
