@@ -14,7 +14,7 @@ fi
 
 # Add zsh to /etc/shells
 # ----------------------
-if ! grep -q "^${zsh_path}$" /etc/shells; then
+if ! grep -q -m 1 "^${zsh_path}$" /etc/shells; then
   printf "${zsh_path}\n" >> /etc/shells
 
   # Exit if we can't add the shell path
@@ -42,7 +42,7 @@ fi
 # -----------
 
 # We know that the zsh config directory exists at this point
-if ! grep -q '^export ZDOTDIR=' /etc/zsh/zshenv; then
+if ! grep -q -m 1 '^export ZDOTDIR=' /etc/zsh/zshenv; then
   printf '\nexport ZDOTDIR=$HOME/.config/zsh' >> /etc/zsh/zshenv
 
   # Exit if we can't set ZDOTDIR
