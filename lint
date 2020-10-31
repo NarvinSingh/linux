@@ -56,12 +56,6 @@ done
 # Lint files
 # ----------
 
-# If no parameters, call the script on the current directory
-if [[ "$#" -eq 0 ]]; then
-  $0 .
-  exit "$?"
-fi
-
 for item in "$@"; do
   # Process a file
   if [[ ! -e "${item}" ]]; then
