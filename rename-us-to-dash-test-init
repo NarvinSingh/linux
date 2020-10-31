@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Description
+# ===========
+
+# Initializes the rename-us-to-dash-test directory with test cases for
+# rename-us-to-dash
+
+# Rebuild the directory structure
+# -------------------------------
+rm -rf ./rename-us-to-dash-test
+mkdir -p ./rename-us-to-dash-test/.git \
+  ./rename-us-to-dash-test/.git2 \
+  ./rename-us-to-dash-test/level1/level2 \
+  ./rename-us-to-dash-test/level1/level2
+
+# Create the files
+# ----------------
+touch ./rename-us-to-dash-test/a_file
+touch ./rename-us-to-dash-test/b-file
+touch ./rename-us-to-dash-test/.git/g_file
+touch ./rename-us-to-dash-test/.git2/g_file
+touch ./rename-us-to-dash-test/level1/_a_file_
+touch ./rename-us-to-dash-test/level1/level2/_a_file_
+
