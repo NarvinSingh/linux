@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Find all files and directories in the current directory recursively,
+# excluding any .git directories and their contents
+find . -type d -a -name .git -a -prune -o -print0
+#                                      ^ otherwise print everything else
+#      ^----------------------------^ when a .git dir is found prune returns
+#                                     true, preventing the other side of -o from
+#                                     executing
+#                            ^ don't traverse these dirs
+#      ^-------------------^ .git dirs
+#    ^ search under the current directory
+
+# Shorter form with implicit -a
+# find . -type d -name .git -prune -o -print0
+
+# Exclude multiple directories
+# find . -type d \( -name .git -o -name .config \) -prune -o -print0
+
+# Search for files matching a pattern while excluding a directory. The
+# trailing print action is important because without it, an implicit print
+# is applied to the entire preceding expression, so the matches on the left
+# of -o would also be printed. The explicit print action only applies to
+# the matches on the right of -o.
+# find . -type d -name .git -prune -o -name '*_*' -print0
+
