@@ -103,6 +103,8 @@ for item in "$@"; do
   elif [[ -d "${item}" ]]; then
     find "${item}" -type f -not -path '*/.git/*' -not -name '*.swp' -print0 \
       | xargs -0 "$0"
+  else
+    printf "${RED_FG}skp ${RESET_COLOR} %s\n" "${item}"
   fi
 done
 
