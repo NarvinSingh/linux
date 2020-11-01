@@ -19,12 +19,13 @@ readonly RESET_COLOR=$(tput sgr0)
 # Outputs
 #   Writes the usage info to stdout
 usage() {
-  cat <<USAGE
+  cat <<'USAGE'
 usage: lint [--help | -h]
-       lint file ...
+       lint [-d=dir] file ...
 
 OPTIONS
   -h, --help       Show this help message
+  -d               Base directory all file paths are relative to
 
 EXAMPLES
   Lint all the files in the current directory, excluding any .git directories.
@@ -34,7 +35,8 @@ EXAMPLES
   Lint all the files that are added, modified, or renamed in the index,
   and where the working directory matches the index.
 
-  git status -z --porcelain | grep -z '^[AMR] ' | cut -z -b 4- | xargs -0 lint
+  git status -z --porcelain | grep -z '^[AMR] ' | cut -z -b 4- \
+    | xargs -0 lint -d "$(git rev-parse --show-toplevel)"
 USAGE
 }
 
@@ -42,7 +44,7 @@ USAGE
 # ----------
 
 # getopt will return a string containing quoted options and parameters
-parsed_args="$(getopt -n lint -o h -l help -- "$@")"
+parsed_args="$(getopt -n lint -o hd: -l help -- "$@")"
 getopt_result="$?"
 
 # Show usage if getopt failed to parse the arguments
@@ -55,12 +57,18 @@ fi
 eval set -- "${parsed_args}"
 
 # Process the options
+base_dir='./'
+
 while :
 do
   case "$1" in
     -h | --help)
       usage
       exit 0
+      ;;
+    -d)
+      base_dir="$2"
+      shift 2
       ;;
     # This is the last option, the rest of $parsed_args is parameters
     --)
@@ -70,44 +78,39 @@ do
   esac
 done
 
-# Show usage and exit if no parameters
-if [[ "$#" -eq 0 ]]; then
-  usage
-  exit 0
-fi
-
 # Lint files
 # ----------
-
 for file in "$@"; do
+  path="${base_dir}/${file}"
+
   # Process a file
-  if [[ -f "${file}" ]]; then
+  if [[ -f "${path}" ]]; then
     # Trailing whitespace
-    grep -m 1 '\s\+$' "${file}" 1> /dev/null \
-      && printf "${RED_FG}tws${RESET_COLOR} %s\n" "${file}"
+    grep -m 1 '\s\+$' "${path}" 1> /dev/null \
+      && printf "${RED_FG}tws${RESET_COLOR} %s\n" "${path}"
 
     # Tabs
-    grep -m 1 $'\t' "${file}" 1> /dev/null \
-      && printf "${RED_FG}tab${RESET_COLOR} %s\n" "${file}"
+    grep -m 1 $'\t' "${path}" 1> /dev/null \
+      && printf "${RED_FG}tab${RESET_COLOR} %s\n" "${path}"
 
     # Trailing blank lines
-    read num_tbl < <(tail -n 2 "${file}" | grep -c -m 2 '^$')
+    read num_tbl < <(tail -n 2 "${path}" | grep -c -m 2 '^$')
 
     if [[ "${num_tbl}" -eq 0 ]]; then
-      printf "${RED_FG}nbl${RESET_COLOR} %s\n" "${file}"
+      printf "${RED_FG}nbl${RESET_COLOR} %s\n" "${path}"
     elif [[ "${num_tbl}" -gt 1 ]]; then
-      printf "${RED_FG}mbl${RESET_COLOR} %s\n" "${file}"
+      printf "${RED_FG}mbl${RESET_COLOR} %s\n" "${path}"
     fi
 
-  elif [[ ! -e "${file}" ]]; then
-    printf "${RED_FG}ne ${RESET_COLOR} %s\n" "${file}"
+  elif [[ ! -e "${path}" ]]; then
+    printf "${RED_FG}ne ${RESET_COLOR} %s\n" "${path}"
 
-  elif [[ -d "${file}" ]]; then
-    printf "${RED_FG}dir${RESET_COLOR} %s\n" "${file}"
+  elif [[ -d "${path}" ]]; then
+    printf "${RED_FG}dir${RESET_COLOR} %s\n" "${path}"
 
   # Don't process any other types of files
   else
-    printf "${RED_FG}skp${RESET_COLOR} %s\n" "${file}"
+    printf "${RED_FG}skp${RESET_COLOR} %s\n" "${path}"
   fi
 done
 
