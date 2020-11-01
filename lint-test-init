@@ -1,13 +1,23 @@
 #!/bin/bash
-#
-# Initializes the gitadd_test directory with test cases for gitadd
 
-rm -rf ./gitadd_test
-mkdir ./gitadd_test
-cd ./gitadd_test
+# lint-test-init
+# ==============
+
+# Initializes the lint-test directory with test cases for lint
+
+# Rebuild the directory structure
+# -------------------------------
+rm -rf ./lint-test
+mkdir ./lint-test
+cd ./lint-test
+
+# Create the repo
+# ---------------
 git init 1> /dev/null
 
-printf '# Gitadd Test Repo\n\n'                        >  README.md
+# Create the files
+# ----------------
+printf '# Lint Test Repo\n\n'                          >  README.md
 
 printf 'File name has no special characters.\n'        >  test.txt
 printf 'File contains no linting issues.\n\n'          >> test.txt
