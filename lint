@@ -1,24 +1,50 @@
 #!/bin/bash
-#
-# Lints a list of file
 
+# lint
+# ====
+
+# Print linting issues with files
+
+# Constants
+# ---------
 readonly RED_FG=$(tput setaf 1)
 readonly RESET_COLOR=$(tput sgr0)
 
-################################################################################
+# Functions
+# ---------
+
+# ### usage
+
 # Prints the usage info for this script.
 # Outputs
 #   Writes the usage info to stdout
-################################################################################
 usage() {
-  printf 'usage:\n'
-  printf '  lint [--help | -h]\n'
-  printf '  lint file1 [file2...]\n'
-  printf '  lint [-d] dir1 [dir2...]\n'
+  cat <<'USAGE'
+usage: lint [--help | -h]
+       lint [-d=dir] file ...
+
+OPTIONS
+  -h, --help       Show this help message
+  -d               Base directory all file paths are relative to
+
+EXAMPLES
+  Lint all the files in the current directory, excluding any .git directories.
+
+  find . -type d -name .git -prune -o -type f -print0 | xargs -0 lint
+
+  Lint all the files that are added, modified, or renamed in the index,
+  and where the working directory matches the index.
+
+  git status -z --porcelain | grep -z '^[AMR] ' | cut -z -b 4- \
+    | xargs -0 lint -d "$(git rev-parse --show-toplevel)"
+USAGE
 }
 
+# Parse args
+# ----------
+
 # getopt will return a string containing quoted options and parameters
-parsed_args="$(getopt -n lint -o h -l help -- "$@")"
+parsed_args="$(getopt -n lint -o hd: -l help -- "$@")"
 getopt_result="$?"
 
 # Show usage if getopt failed to parse the arguments
@@ -31,66 +57,60 @@ fi
 eval set -- "${parsed_args}"
 
 # Process the options
+base_dir='./'
+
 while :
 do
   case "$1" in
     -h | --help)
       usage
-      exit 0;;
+      exit 0
+      ;;
+    -d)
+      base_dir="$2"
+      shift 2
+      ;;
     # This is the last option, the rest of $parsed_args is parameters
     --)
       shift
-      break ;;
+      break
+      ;;
   esac
 done
 
-# If no parameters, call the script on the current directory
-if [[ "$#" -eq 0 ]]; then
-  $0 .
-  exit "$?"
-fi
+# Lint files
+# ----------
+for file in "$@"; do
+  path="${base_dir}/${file}"
 
-################################################################################
-# Prints a linting error if the file is missing a trailing blank line,
-# or has more than one trailing blank line.
-# Arguments
-#   The number of trailing blank lines on stdin
-# Outputs
-#   Writes a linting error to stdout if the number of trailing blank lines
-#   is not 1
-################################################################################
-check_trailing_blank_lines() {
-  mapfile -t stdin_args
-  n="${stdin_args[0]}"
-
-  if [[ "$n" -eq 0 ]]; then
-    printf "${RED_FG}nbl${RESET_COLOR} %s\n" "${item}"
-  elif [[ "$n" -gt 1 ]]; then
-    printf "${RED_FG}mbl${RESET_COLOR} %s\n" "${item}"
-  fi
-}
-
-for item in "$@"; do
   # Process a file
-  if [[ ! -e "${item}" ]]; then
-    printf "${RED_FG}ne ${RESET_COLOR} %s\n" "${item}"
-  elif [[ -f "${item}" ]]; then
+  if [[ -f "${path}" ]]; then
     # Trailing whitespace
-    grep -m 1 '\s\+$' "${item}" 1> /dev/null \
-      && printf "${RED_FG}tws${RESET_COLOR} %s\n" "${item}"
+    grep -m 1 '\s\+$' "${path}" 1> /dev/null \
+      && printf "${RED_FG}tws${RESET_COLOR} %s\n" "${path}"
 
     # Tabs
-    grep -m 1 $'\t' "${item}" 1> /dev/null \
-      && printf "${RED_FG}tab${RESET_COLOR} %s\n" "${item}"
+    grep -m 1 $'\t' "${path}" 1> /dev/null \
+      && printf "${RED_FG}tab${RESET_COLOR} %s\n" "${path}"
 
-    # No trailing blank line
-    tail -n 2 "${item}" | grep -c -m 2 '^$' \
-      | check_trailing_blank_lines
-  # Process a directory by calling the script recursively on all the files
-  # in the directory, excluding .git directories and .swp files
-  elif [[ -d "${item}" ]]; then
-    find "${item}" -type f -not -path '*/.git/*' -not -name '*.swp' -print0 \
-      | xargs -0 "$0"
+    # Trailing blank lines
+    read num_tbl < <(tail -n 2 "${path}" | grep -c -m 2 '^$')
+
+    if [[ "${num_tbl}" -eq 0 ]]; then
+      printf "${RED_FG}nbl${RESET_COLOR} %s\n" "${path}"
+    elif [[ "${num_tbl}" -gt 1 ]]; then
+      printf "${RED_FG}mbl${RESET_COLOR} %s\n" "${path}"
+    fi
+
+  elif [[ ! -e "${path}" ]]; then
+    printf "${RED_FG}ne ${RESET_COLOR} %s\n" "${path}"
+
+  elif [[ -d "${path}" ]]; then
+    printf "${RED_FG}dir${RESET_COLOR} %s\n" "${path}"
+
+  # Don't process any other types of files
+  else
+    printf "${RED_FG}skp${RESET_COLOR} %s\n" "${path}"
   fi
 done
 

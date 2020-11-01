@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Clean test directories
+find . -type d -name '*-test' -print0 | xargs -0 rm -rf
+

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Description
+# ===========
+
+# Initializes the find-no-dotgit-test directory with test cases for
+# find-no-dotgit
+
+# Rebuild the directory structure
+# -------------------------------
+rm -rf ./find-no-dotgit-test
+mkdir -p ./find-no-dotgit-test/.git \
+  ./find-no-dotgit-test/.git2 \
+  ./find-no-dotgit-test/level1/level2 \
+  ./find-no-dotgit-test/level1/level2
+
+# Create the files
+# ----------------
+touch ./find-no-dotgit-test/afile
+touch ./find-no-dotgit-test/bfile
+touch ./find-no-dotgit-test/.git/gfile
+touch ./find-no-dotgit-test/.git2/gfile
+touch ./find-no-dotgit-test/level1/afile
+touch ./find-no-dotgit-test/level1/level2/afile
+
