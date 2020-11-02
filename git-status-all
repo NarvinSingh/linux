@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Print the git status of all repos found under the current directory. Only
-# the ahead/behind status of the current branch is shown. Bare branches are
-# not supported.
+# Print the git status of all repos found under the current directory. Only the
+# ahead/behind status of the current branch is shown. Bare repos are not shown.
 find . -type f -name 'config' -print0 \
   | xargs -0 grep -wlZ -m 1 'repositoryformatversion = 0' \
+  | xargs -0 grep -wlZ -m 1 'bare = false' \
   | xargs -0 dirname -z \
   | xargs -0 -I {} bash -c "\
     printf '== {} ==\n'; \
