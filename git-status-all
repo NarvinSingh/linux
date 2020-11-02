@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Print the git status of all repos found under the current directory. Only
+# the ahead/behind status of the current branch is shown. Bare branches are
+# not supported.
+find . -type f -name 'config' -print0 \
+  | xargs -0 grep -wlZ -m 1 'repositoryformatversion = 0' \
+  | xargs -0 dirname -z \
+  | xargs -0 -I {} bash -c "\
+    printf '== {} ==\n'; \
+    git --git-dir '{}' branch \
+    && git --git-dir '{}' --work-tree \$(dirname '{}') \
+      status -z --porcelain=v2 --branch \
+      | grep -wz -m 1 'branch\.ab' \
+    && printf '\n' \
+    && git --git-dir '{}' --work-tree \$(dirname '{}') status -s; \
+    printf '\n'"
+
