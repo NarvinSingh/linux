@@ -1,18 +1,157 @@
 #!/bin/bash
 
-# Print the git status of all repos found under the current directory. Only the
-# ahead/behind status of the current branch is shown. Bare repos are not shown.
-find . -type f -name 'config' -print0 \
-  | xargs -0 grep -wlZ -m 1 'repositoryformatversion = 0' \
-  | xargs -0 grep -wlZ -m 1 'bare = false' \
-  | xargs -0 dirname -z \
-  | xargs -0 -I {} bash -c "\
-    printf '== {} ==\n'; \
-    git --git-dir '{}' branch \
-    && git --git-dir '{}' --work-tree \$(dirname '{}') \
-      status -z --porcelain=v2 --branch \
-      | grep -wz -m 1 'branch\.ab' \
-    && printf '\n' \
-    && git --git-dir '{}' --work-tree \$(dirname '{}') status -s; \
-    printf '\n'"
+# git-status-all
+# ==============
+
+# Print status info about all git repos under the current directory.
+
+# Colors
+# ------
+readonly CLR_RESET=$(tput sgr0)
+readonly CLR=$(tput setaf 15)
+readonly CLR_UNK=$(tput setaf 0)
+readonly CLR_BG_CLEAN=$(tput setab 2)
+readonly CLR_BG_DIRTY=$(tput setab 1)
+readonly CLR_BG_UNK_1=$(tput setab 7)
+readonly CLR_BG_UNK_2=$(tput setab 8)
+readonly CLR_STATS=$(tput setaf 1)
+readonly CLR_STATS_X=$(tput setaf 2)
+readonly CLR_STATS_Y=$(tput setaf 1)
+readonly CLR_BG_STATS=$(tput setab 15)
+
+# Functions
+# ---------
+
+# ### print_unknown_branches
+print_unknown_branches() {
+  unknown_branches=("$@")
+  res=''
+  odd=1
+
+  for unknown_branch in "${unknown_branches[@]}"; do
+    if [[ -n "${odd}" ]]; then
+      res+="${CLR_BG_UNK_1}${CLR_UNK} ${unknown_branch} ${CLR_RESET}"
+      odd=''
+    else
+      res+="${CLR_BG_UNK_2}${CLR_UNK} ${unknown_branch} ${CLR_RESET}"
+      odd=1
+    fi
+  done
+
+  printf "${res}"
+}
+
+# ### print_xy_stats
+print_xy_stats() {
+  code="${1}"
+  num_x="${2}"
+  num_y="${3}"
+  res=''
+
+  if [[ "${num_x}" -gt 0 || "${num_y}" -gt 0 ]]; then
+    res+=" ${CLR_STATS}${code}"
+
+    if [[ "${num_x}" -gt 0 ]]; then res+="${CLR_STATS_X}${num_x}"; fi
+    if [[ "${num_y}" -gt 0 ]]; then
+      res+="${CLR_STATS}:${CLR_STATS_Y}${num_y}"
+    fi
+
+    res+=" ${CLR_RESET}"
+  fi
+
+  printf "${res}"
+}
+
+# Init
+# ----
+git_path=$(which git)
+
+if [[ "$?" -ne 0 ]]; then
+  exit 127
+fi
+
+# Get repo dirs
+# -------------
+mapfile -d '' configs < <(find . -type f -name 'config' -print0 \
+  | xargs -0 grep -wlZ -m 1 'repositoryformatversion = 0')
+mapfile -d '' repos < <(grep -wlZ -m 1 'bare = false' "${configs[@]}" \
+  | xargs -0 dirname -z 2> /dev/null)
+mapfile -d '' bare_repos < <(grep -wlZ -m 1 'bare = true' "${configs[@]}" \
+  | xargs -0 dirname -z 2> /dev/null)
+
+# Print regular repo stats
+# ------------------------
+for repo in "${repos[@]}"; do
+  # Get the stat values
+  work_tree=$(dirname "${repo}")
+  git_cmd="${git_path} --git-dir ${repo} --work-tree ${work_tree}"
+  stat=$(${git_cmd} status --porcelain=v2 --branch 2> /dev/null)
+  branch=$(printf "${stat}" | grep '^# branch.head ' -m 1 | cut -b 15-)
+  mapfile -t other_branches < <(${git_cmd} branch | grep '^  ' | cut -b 3-)
+  ab=$(printf "${stat}" | grep '^# branch.ab ' -m 1)
+  a=$(printf "${ab}" | cut -d '+' -f 2 | cut -d ' ' -f 1)
+  b=$(printf "${ab}" | cut -d '-' -f 2)
+  num_a=$(printf "${stat}" | grep '^[12u] A' -c)
+  num_mx=$(printf "${stat}" | grep -E '^[12u] M' -c)
+  num_my=$(printf "${stat}" | grep -E '^[12u] .M' -c)
+  num_dx=$(printf "${stat}" | grep -E '^[12u] D' -c)
+  num_dy=$(printf "${stat}" | grep -E '^[12u] .D' -c)
+  num_rx=$(printf "${stat}" | grep -E '^[12u] R' -c)
+  num_ry=$(printf "${stat}" | grep -E '^[12u] .R' -c)
+  num_cx=$(printf "${stat}" | grep -E '^[12u] C' -c)
+  num_cy=$(printf "${stat}" | grep -E '^[12u] .C' -c)
+  num_u=$(printf "${stat}" | grep '^? ' -c)
+  total=$(printf "${stat}" | grep '^[12u?] ' -c)
+
+  # Construct the stats
+  stats=''
+
+  if [[ -n "${a}" && "${a}" -gt 0 ]]; then stats+=" +${a}"; fi
+  if [[ -n "${b}" && "${b}" -gt 0 ]]; then stats+=" -${b}"; fi
+
+  stats+=$(print_xy_stats 'a' "${num_a}")
+  stats+=$(print_xy_stats 'm' "${num_mx}" "${num_my}")
+  stats+=$(print_xy_stats 'd' "${num_dx}" "${num_dy}")
+  stats+=$(print_xy_stats 'r' "${num_rx}" "${num_ry}")
+  stats+=$(print_xy_stats 'c' "${num_cx}" "${num_cy}")
+  stats+=$(print_xy_stats 'u' "${num_u}")
+
+  # Output the stats
+  printf "${work_tree} "
+  print_unknown_branches "${other_branches[@]}"
+
+  # No changes, so the branch is clean. It may still be ahead or behind.
+  if [[ "${total}" -eq 0 ]]; then
+    printf "${CLR_BG_CLEAN} ${CLR}${branch} ${CLR_RESET}"
+
+  # Changes, so the branch is dirty. It may also be ahead or behind.
+  else
+    printf "${CLR_BG_DIRTY} ${CLR}${branch} ${CLR_RESET}"
+  fi
+
+  # A clean branch may have stats because it is ahead or behind. A dirty
+  # branch may not have stats if there are changes we didn't check for,
+  # i.e., total > 0 and stats = ''.
+  if [[ -n "${stats}" ]]; then
+    printf "${CLR_BG_STATS}${CLR_STATS}${stats}${CLR_RESET}"
+  fi
+
+  printf '\n'
+done
+
+# Print bare repo stats
+# ---------------------
+for repo in "${bare_repos[@]}"; do
+  # Get the stat values
+  git_cmd="${git_path} --git-dir ${repo}"
+  stat=$(${git_cmd} status --porcelain=v2 --branch 2> /dev/null)
+  branch="$(${git_cmd} branch | grep -m 1 '^\* ' | cut -b 3-)"
+  mapfile -t other_branches < <(${git_cmd} branch | grep '^  ' | cut -b 3-)
+
+  # Output the stats
+  printf "${repo} [bare repo] "
+  all_branches=("${other_branches[@]}" "${branch}")
+  print_unknown_branches "${all_branches[@]}"
+  printf '\n'
+done
 
