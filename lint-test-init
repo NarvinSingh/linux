@@ -22,37 +22,37 @@ printf '# Lint Test Repo\n\n'                          >  README.md
 printf 'File name has no special characters.\n'        >  test.txt
 printf 'File contains no linting issues.\n\n'          >> test.txt
 
-printf 'File name has a space.\n'                      >  'test space_tws.txt'
-printf 'File created by quoting name.\n'               >> 'test space_tws.txt'
-printf 'This line has trailing spaces.   \n\n'         >> 'test space_tws.txt'
+printf 'File name has a space.\n'                      >  'test space-tws.txt'
+printf 'File created by quoting name.\n'               >> 'test space-tws.txt'
+printf 'This line has trailing spaces.   \n\n'         >> 'test space-tws.txt'
 
-printf 'File name has a space.\n'                      >  test\ space_tab.txt
-printf 'File created by escaping space in name.\n'     >> test\ space_tab.txt
-printf '\tThis line contains a tab.\n\n'               >> test\ space_tab.txt
+printf 'File name has a space.\n'                      >  test\ space-tab.txt
+printf 'File created by escaping space in name.\n'     >> test\ space-tab.txt
+printf '\tThis line contains a tab.\n\n'               >> test\ space-tab.txt
 
-printf 'File name has surrounding whitespace.\n'       >  ' test_nbl.txt '
-printf 'File created by quoting name.\n'               >> ' test_nbl.txt '
-printf 'The last line of this file is not blank.\n'    >> ' test_nbl.txt '
+printf 'File name has surrounding whitespace.\n'       >  ' test-nbl.txt '
+printf 'File created by quoting name.\n'               >> ' test-nbl.txt '
+printf 'The last line of this file is not blank.\n'    >> ' test-nbl.txt '
 
-printf 'File name has surrounding whitespace.\n'       >  ' test_mbl.txt '
-printf 'File created by escaping spaces in name.\n'    >> ' test_mbl.txt '
-printf 'File has multiple trailing blank lines\n\n\n'  >> ' test_mbl.txt '
+printf 'File name has surrounding whitespace.\n'       >  ' test-mbl.txt '
+printf 'File created by escaping spaces in name.\n'    >> ' test-mbl.txt '
+printf 'File has multiple trailing blank lines\n\n\n'  >> ' test-mbl.txt '
 
-printf 'File name has a backslash.\n'                  >  'test\u50_tws.txt'
-printf 'File created by quoting name.\n'               >> 'test\u50_tws.txt'
-printf 'This line has trailing spaces.   \n\n'         >> 'test\u50_tws.txt'
+printf 'File name has a backslash.\n'                  >  'test\u50-tws.txt'
+printf 'File created by quoting name.\n'               >> 'test\u50-tws.txt'
+printf 'This line has trailing spaces.   \n\n'         >> 'test\u50-tws.txt'
 
-printf 'File name has special characters.\n'           >  'test!@#$%^*()-=+{}[]|;:"<>,.?\n _tab.txt'
-printf 'File created by quoting name.\n'               >> 'test!@#$%^*()-=+{}[]|;:"<>,.?\n _tab.txt'
-printf '\tThis line contains a tab.\n\n'               >> 'test!@#$%^*()-=+{}[]|;:"<>,.?\n _tab.txt'
+printf 'File name has special characters.\n'           >  'test!@#$%^*()-_=+{}[]|;:"<>,.?\n -tab-us.txt'
+printf 'File created by quoting name.\n'               >> 'test!@#$%^*()-_=+{}[]|;:"<>,.?\n -tab-us.txt'
+printf '\tThis line contains a tab.\n\n'               >> 'test!@#$%^*()-_=+{}[]|;:"<>,.?\n -tab-us.txt'
 
-printf 'File name has no special characters.\n'        >  test_tws_tab_nbl.txt
-printf 'This line has trailing spaces.   \n'           >> test_tws_tab_nbl.txt
-printf '\tThis line contains a tab.\n'                 >> test_tws_tab_nbl.txt
-printf 'The last line of this file is not blank.'      >> test_tws_tab_nbl.txt
+printf 'File name has no special characters.\n'        >  test-tws-tab-nbl.txt
+printf 'This line has trailing spaces.   \n'           >> test-tws-tab-nbl.txt
+printf '\tThis line contains a tab.\n'                 >> test-tws-tab-nbl.txt
+printf 'The last line of this file is not blank.'      >> test-tws-tab-nbl.txt
 
-printf 'File name has no special characters.\n'        >  test_tws_tab_mbl.txt
-printf 'This line has trailing spaces.   \n'           >> test_tws_tab_mbl.txt
-printf '\tThis line contains a tab.\n'                 >> test_tws_tab_mbl.txt
-printf 'File has multiple trailing blank lines\n\n\n'  >> test_tws_tab_mbl.txt
+printf 'File name has no special characters.\n'        >  test-tws-tab-mbl.txt
+printf 'This line has trailing spaces.   \n'           >> test-tws-tab-mbl.txt
+printf '\tThis line contains a tab.\n'                 >> test-tws-tab-mbl.txt
+printf 'File has multiple trailing blank lines\n\n\n'  >> test-tws-tab-mbl.txt
 

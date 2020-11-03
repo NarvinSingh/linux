@@ -102,6 +102,11 @@ for file in "$@"; do
       printf "${RED_FG}mbl${RESET_COLOR} %s\n" "${path}"
     fi
 
+    # Underscore in file name
+    if [[ "${file}" =~ '_' ]]; then
+      printf "${RED_FG}us ${RESET_COLOR} %s\n" "${path}"
+    fi
+
   elif [[ ! -e "${path}" ]]; then
     printf "${RED_FG}ne ${RESET_COLOR} %s\n" "${path}"
 
