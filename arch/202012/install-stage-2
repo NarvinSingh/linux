@@ -57,8 +57,7 @@ run () {
     nvidia-utils \
     iwd \
     dhcpcd \
-    sudo \
-    which \
+    base-devel \
     man-db \
     zsh \
     vim \
