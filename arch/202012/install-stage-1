@@ -1,0 +1,81 @@
+#!/bin/bash
+
+run () {
+  local -r wifi_adapter="$1"
+  local -r wifi_network="$2"
+  local -r wifi_password="$3"
+  local -r disk="$4"
+
+  # Verify arguments
+  if [[ "$#" -ne 4 ]]; then
+    echo 'USAGE: l2-arch-install-stage-1'
+    echo '       <wifi_adapter> <wifi_network> <wifi_password> <target_disk>'
+    return 1
+  fi
+
+  # Verify booted in UEFI mode
+  local -r is_uefi_dir='/sys/firmware/efi/efivars'
+  if [[ -z "$(find "${is_uefi_dir}" -maxdepth 1 -type f 2> /dev/null)" ]]; then
+    echo 'BIOS mode'
+    return 2
+  fi
+  echo 'UEFI mode'
+
+  # Connect to Internet
+  printf 'Connecting to Internet... '
+  if iwctl --passphrase "${wifi_password}" station "${wifi_adapter}" \
+    connect "${wifi_network}" &> /dev/null; then
+    # Check for an IP every second for 5 seconds
+    local has_ip=0
+    for _ in {1..5}; do
+      sleep 1
+      if [[ "$(ip a show "${wifi_adapter}" | grep -c 'inet ')" -gt 0 ]]; then
+        if ping -c 2 archlinux.org &> /dev/null; then echo 'OK'
+        else
+          echo 'FAILED to ping.'
+          echo '  Try running this script again.'
+          return 5
+        fi
+        has_ip=1
+        break
+      fi
+    done
+    if [[ "${has_ip}" -eq 0 ]]; then
+      echo 'FAILED to obtain IP.'
+      echo '  Try running this script again.'
+      return 4
+    fi
+  else
+    echo 'FAILED to connect.'
+    echo '  Check that wifi adapter, network and password are correct.'
+    return 3
+  fi
+
+  # Partition disk
+  printf 'g\nn\n\n\n1048575\nt\n1\nn\n\n\n\np\nw\n' | fdisk "${disk}"
+
+  # Format partitions
+  mkfs.fat -F32 "${disk}"p1
+  mkfs.ext4 "${disk}"p2
+
+  # Mount file systems
+  mount "${disk}p2" /mnt
+  mkdir -p /mnt/boot/EFI
+  mount "${disk}p1" /mnt/boot/EFI
+
+  # Generate fstab file
+  mkdir /mnt/etc
+  genfstab -U -p /mnt >> /mnt/etc/fstab
+
+  # Install packages
+  pacman -Syyy
+  pacstrap /mnt base linux linux-firmware
+
+  # Prepare stage 2
+  cp "$(dirname "$0")"/install-stage-2 /mnt
+  echo 'Run arch-chroot /mnt'
+  echo 'Run /install-stage-2'
+}
+
+run "$@"
+
