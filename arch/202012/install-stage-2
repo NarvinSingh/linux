@@ -54,7 +54,7 @@ run () {
     intel-ucode \
     mesa \
     nvidia \
-    nvidia-utils \
+    nvidia-prime \
     iwd \
     dhcpcd \
     base-devel \
