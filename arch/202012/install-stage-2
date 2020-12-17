@@ -73,7 +73,7 @@ run () {
   grub-mkconfig -o /boot/grub/grub.cfg
 
   # Enable services
-  systemctl enable iwd dhcpcd sddm
+  systemctl enable iwd dhcpcd
 
   # Set root password
   printf '%s\n%s\n' "${root_passwd}" "${root_passwd}" | passwd
