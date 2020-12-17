@@ -151,6 +151,14 @@ run () {
     cmd+=" --group kwin --key 'Switch One Desktop to the Left'"
     cmd+=" 'Meta+H,Meta+Ctrl+Left,Switch One Desktop to the Left'"
 
+    # Resolution specific: wallpaper
+    # This isn't working
+    ## cmd+=" && kwriteconfig5"
+    ## cmd+=" --file /home/${user}/.config/plasma-org.kde.plasma.desktop-appletsrc"
+    ## cmd+=" --group Containments --group 1 --group Wallpaper"
+    ## cmd+=" --group org.kde.image --group General --key Image"
+    ## cmd+=" file:///usr/share/wallpapers/OneStandsOut/contents/images/1920x1080.jpg"
+
     # Machine specific: scale display 125% and increase font DPI to 120
     cmd+=" && kwriteconfig5 --file /home/${user}/.config/kdeglobals"
     cmd+=" --group KScreen --key ScaleFactor 1.25"
