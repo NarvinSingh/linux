@@ -61,6 +61,7 @@ run () {
     man-db \
     zsh \
     vim \
+    git \
     xorg-server \
     plasma \
     konsole \
@@ -95,8 +96,51 @@ run () {
 
   # User customization
   if [[ -n "${dot_repo}" ]]; then
-    pacman -S --needed git
-    su -c "git clone ${dot_repo} /home/${user}/.config" "${user}"
+    local cmd=''
+    cmd+="git clone ${dot_repo} /home/${user}/.config"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kdeglobals"
+    cmd+=" --group General --key fixed 'Source Code Pro,10,-1,5,50,0,0,0,0,0'"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Desktops --key Number 4"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Desktops --key Rows 2"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Desktops --key Name_1 Primary"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Desktops --key Name_2 Secondary"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Desktops --key Name_3 Web"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Desktops --key Name_4 Misc"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Windows --key BorderlessMaximizedWindows true"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Plugins --key cubeslideEnabled true"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Plugins --key blurEnabled true"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Plugins --key kwin4_effect_squashEnabled false"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group Plugins --key magiclampEnabled true"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group org.kde.kdecoration2 --key ButtonsOnLeft MXAIS"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
+    cmd+=" --group org.kde.kdecoration2 --key ButtonsOnRight H"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kglobalshortcutsrc"
+    cmd+=" --group kwin --key 'Switch One Desktop Down'"
+    cmd+=" 'Meta+J,Meta+Ctrl+Down,Switch One Desktop Down'"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kglobalshortcutsrc"
+    cmd+=" --group kwin --key 'Switch One Desktop to the Left'"
+    cmd+=" 'Meta+H,Meta+Ctrl+Left,Switch One Desktop to the Left'"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kdeglobals"
+    cmd+=" --group KScreen --key ScaleFactor 1.25"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/kcmfonts"
+    cmd+=" --group General --key forceFontDPI 120"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/touchpadxlibinputrc"
+    cmd+=" --group 'DLL07BE:01 06CB:7A13 Touchpad' --key naturalScroll true"
+    cmd+=" && kwriteconfig5 --file /home/${user}/.config/touchpadxlibinputrc"
+    cmd+=" --group 'DLL07BE:01 06CB:7A13 Touchpad' --key tapToClick true"
+    su -c "${cmd}" "${user}"
   fi
 }
 
