@@ -72,9 +72,9 @@ run () {
   pacstrap /mnt base linux linux-firmware
 
   # Prepare stage 2
-  cp "$(dirname "$0")"/install-stage-2 /mnt
+  cp "$(dirname "$0")"/install-stage-2-* /mnt
   echo 'Run arch-chroot /mnt'
-  echo 'Run /install-stage-2'
+  echo 'Run /install-stage-2-<build>'
 }
 
 run "$@"
