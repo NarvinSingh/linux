@@ -55,6 +55,8 @@ run () {
     nvidia-prime \
     iwd \
     dhcpcd \
+    sudo \
+    which \
     zsh \
     vim \
     git
