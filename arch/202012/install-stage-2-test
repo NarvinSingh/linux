@@ -1,83 +1,23 @@
 #!/bin/bash
 
-if [[ "$#" -ne 1 ]]; then return 1; fi
+run () {
+  {
+    echo 'default      arch.conf'
+    echo 'timeout      4'
+    echo 'console-mode max'
+    echo 'editor       no'
+  } > ./loader.conf
+  {
+    echo 'title   Arch Linux'
+    echo 'linux   /vmlinuz-linux'
+    echo 'initrd  /intel-ucode.img'
+    echo 'initrd  /initramfs-linux.img'
+    local -r part="$(mount | grep -m 1 'on / ' | cut -d ' ' -f 1)"
+    local -r uuid="$(blkid "${part}" \
+      | grep -o ' UUID="[0-9a-f-]*' | cut -c 8-)"
+    echo "options root=UUID=${uuid} rw"
+  } > ./arch.conf
+}
 
-user="$1"
-dot_repo='https://github.com/NarvinSingh/dotfiles'
-cmd=''
-
-# Clone dotfiles repo
-cmd+="git clone ${dot_repo} /home/${user}/.config"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kdeglobals"
-
-# Fixed font
-cmd+=" --group General --key fixed 'Source Code Pro,10,-1,5,50,0,0,0,0,0'"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-
-# 4 desktops in 2 rows
-cmd+=" --group Desktops --key Number 4"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Desktops --key Rows 2"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Desktops --key Name_1 Primary"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Desktops --key Name_2 Secondary"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Desktops --key Name_3 Web"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Desktops --key Name_4 Misc"
-
-# Borderless maximized windows
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Windows --key BorderlessMaximizedWindows true"
-
-# Desktop switching cube slide animation
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Plugins --key cubeslideEnabled true"
-
-# Blur background behind transparent windows
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Plugins --key blurEnabled true"
-
-# Disable squash effect and enable magic lamp effect for minimized windows
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Plugins --key kwin4_effect_squashEnabled false"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group Plugins --key magiclampEnabled true"
-
-# Window title bar buttons on the left
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group org.kde.kdecoration2 --key ButtonsOnLeft MXAIS"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kwinrc"
-cmd+=" --group org.kde.kdecoration2 --key ButtonsOnRight H"
-
-# Desktop switching keyboard shortcuts
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kglobalshortcutsrc"
-cmd+=" --group kwin --key 'Switch One Desktop Down'"
-cmd+=" 'Meta+J,Meta+Ctrl+Down,Switch One Desktop Down'"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kglobalshortcutsrc"
-cmd+=" --group kwin --key 'Switch One Desktop to the Left'"
-cmd+=" 'Meta+H,Meta+Ctrl+Left,Switch One Desktop to the Left'"
-
-# Resolution specific: wallpaper
-# This isn't working
-## cmd+=" && kwriteconfig5 "
-## cmd+=" --file /home/${user}/.config/plasma-org.kde.plasma.desktop-appletsrc"
-## cmd+=" --group Containments --group 1 --group Wallpaper"
-## cmd+=" --group org.kde.image --group General --key Image"
-## cmd+=" file:///usr/share/wallpapers/OneStandsOut/contents/images/1920x1080.jpg"
-
-# Machine specific: scale display 125% and increase font DPI to 120
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kdeglobals"
-cmd+=" --group KScreen --key ScaleFactor 1.25"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/kcmfonts"
-cmd+=" --group General --key forceFontDPI 120"
-
-# Machine specific: enable tap to click and natural scrolling
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/touchpadxlibinputrc"
-cmd+=" --group 'DLL07BE:01 06CB:7A13 Touchpad' --key tapToClick true"
-cmd+=" && kwriteconfig5 --file /home/${user}/.config/touchpadxlibinputrc"
-cmd+=" --group 'DLL07BE:01 06CB:7A13 Touchpad' --key naturalScroll true"
-
-su -c "${cmd}" "${user}"
+run
 
