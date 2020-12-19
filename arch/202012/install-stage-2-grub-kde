@@ -69,7 +69,8 @@ run () {
     firefox
 
   # Configure bootloader
-  grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
+  grub-install --target=x86_64-efi --bootloader-id=grub_uefi \
+    --efi-directory=/boot/EFI --recheck
   grub-mkconfig -o /boot/grub/grub.cfg
 
   # Enable services
