@@ -53,15 +53,17 @@ run () {
 
   # Partition disk
   printf 'g\nn\n\n\n1048575\nt\n1\nn\n\n\n\np\nw\n' | fdisk "${disk}"
+  local -r esp="$(fdisk -l "${disk}" | grep -m 1 -o "${disk}[^ ]*1")"
+  local -r root="$(fdisk -l "${disk}" | grep -m 1 -o "${disk}[^ ]*2")"
 
   # Format partitions
-  mkfs.fat -F32 "${disk}"p1
-  mkfs.ext4 "${disk}"p2
+  mkfs.fat -F32 "${esp}"
+  mkfs.ext4 "${root}"
 
   # Mount file systems
-  mount "${disk}p2" /mnt
-  mkdir -p /mnt/boot/EFI
-  mount "${disk}p1" /mnt/boot/EFI
+  mount "${root}" /mnt
+  mkdir -p /mnt/boot
+  mount "${esp}" /mnt/boot
 
   # Generate fstab file
   mkdir /mnt/etc
